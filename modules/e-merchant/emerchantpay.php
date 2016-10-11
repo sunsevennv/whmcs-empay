@@ -107,6 +107,23 @@ function emerchantpay_config()
             'Default' => '',
             'Description' => 'The commission you are charged for each transaction via EMP',
         ),
+        'whiteListMode' => array(
+            'FriendlyName' => 'White List Mode',
+            'Type' => 'yesno',
+            'Description' => 'Tick to enable white list mode',
+        ),
+        'whiteListUsers' => array(
+            'FriendlyName' => 'Comma separated user id list',
+            'Type' => 'text',
+            'Default' => '',
+            'Description' => 'List of users permitted to use this method',
+        ),
+        'whiteListGroups' => array(
+            'FriendlyName' => 'Comma separated group id list',
+            'Type' => 'text',
+            'Default' => '',
+            'Description' => 'List of groups permitted to use this method',
+        ),
         'testMode' => array(
             'FriendlyName' => 'Test Mode',
             'Type' => 'yesno',
@@ -136,6 +153,9 @@ function emerchantpay_link($params)
     $client_id = $params['clientID'];
     $form_id = $params['formID'];
     $testMode  = $params['testMode'];
+    $whiteListMode = $params['whiteListMode'];
+    $whiteListUserArray = explode(',',$params['whiteListUsers']);
+    $whiteListGroupArray = explode(',',$params['whiteListGroups']);
     $paymentformurl = $params['serverUrl'];
     $server_url = $paymentformurl."/payment/form/post";
     $currency = $params['currency'];
@@ -145,15 +165,13 @@ function emerchantpay_link($params)
     include_once('emerchantpay/ParamSigner.class.php');
     $ps = new Paramsigner();
 
-    //Prepare trans request string
-
     //Required fields
     $ps->setSecret($md5_key);
     $ps->setParam('client_id',$client_id);
     $ps->setParam('form_id',$form_id);
     $ps->setParam('order_currency',$currency);
     $ps->setParam('order_reference',$reference);
-    $ps->setParam('test_transaction', ( $testMode ) ? 1 : 0 ); //For the LIVE environment set to 0 or remove
+    $ps->setParam('test_transaction', ($testMode) ? 1 : 0 ); //For the LIVE environment set to 0 or remove
 
     //Dynamic item
     $ps->setParam('item_1_code',$reference);
@@ -178,9 +196,19 @@ function emerchantpay_link($params)
     //generate Query String
     $requestString=$ps->getQueryString();
 
-    $htmlOutput = '<form method="post" action="' . $server_url."?".$requestString . '">';
-    $htmlOutput .= '<input type="submit" value="' . $params['langpaynow'] . '" />';
-    $htmlOutput .= '</form>';
+    $group_id = $params['clientdetails']['groupid'];
+    $user_id = $params['clientdetails']['id'];
+
+    //Get the users group
+    if (!$whiteListMode or (in_array($group_id, $whiteListGroupArray) or in_array($user_id, $whiteListUserArray))) {
+        $htmlOutput = '<form method="post" action="' . $server_url."?".$requestString . '">';
+        $htmlOutput .= '<input type="submit" value="' . $params['langpaynow'] . '" />';
+        $htmlOutput .= '</form>';
+    } else {
+        $htmlOutput = '<form method="post" action="' . $server_url."?".$requestString . '">';
+        $htmlOutput .= '<input type="submit" value="You must be white listed to use this method." disabled/>';
+        $htmlOutput .= '</form>';
+    }
 
     return $htmlOutput;
 
