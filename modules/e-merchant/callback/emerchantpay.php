@@ -67,7 +67,6 @@ if ( !isset($gatewayParams['paymentFee']) OR !is_numeric($gatewayParams['payment
 {
     $payment_fee_flag = false;
     $transactionStatus[] = 'Missing gateway fee.';
-    $success = false;
 }
 $paymentFee = $gatewayParams['paymentFee'];
 
@@ -102,7 +101,7 @@ if ($authenticatedParam['notification_type'] != "order")
 /**
  * Check order reference
  */
-if (!isset($authenticatedParam['order_reference']))
+if (!isset($_POST['order_reference']))
 {
     $transactionStatus[] = 'Missing order reference';
     $success = false;
@@ -111,15 +110,15 @@ if (!isset($authenticatedParam['order_reference']))
 /**
  * Set the variables
  */
-$invoiceId = $authenticatedParam['order_reference'];
-$transactionId = $authenticatedParam['trans_id'];
-$paymentAmount = $authenticatedParam["amount"];
+$invoiceId = $_POST['order_reference'];
+$transactionId = $_POST['trans_id'];
+$paymentAmount = $_POST['amount'];
 
 if ($payment_fee_flag)
 {
     $paymentFee = $paymentAmount*$paymentFee/100;
 } else {
-    $paymentFee = 0;
+    $paymentFee = $paymentAmount*6.5/100;
 }
 
 $status = $success ? 'Success' : 'Failure';
@@ -160,6 +159,7 @@ checkCbTransID($transactionId);
  */
 
 logTransaction($gatewayParams['name'], $_POST, $status);
+logTransaction($gatewayParams['name'], "InvoiceID: ".$invoiceId. " TransactionID: ".$transactionId." Payment Amount: ".$paymentAmount." Success variable: ".$success." Imploded transaction data: ".implode(", ", $transactionStatus), $status);
 
 if ($success) {
 

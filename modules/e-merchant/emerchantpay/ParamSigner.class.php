@@ -1,31 +1,31 @@
 <?php
 class ParamSigner {
-	var $secret;
-	var $params;
-	var $lifetime=24;
-	var $signatureType='PSMD5';
+    var $secret;
+    var $params;
+    var $lifetime=24;
+    var $signatureType='PSMD5';
 
-	function setSecret($secret)
-	{
-		$this->secret=$secret;
-	}
+    function setSecret($secret)
+    {
+        $this->secret=$secret;
+    }
 
-	function setLifeTime($lifetime)
-	{
-		$this->lifetime=$lifetime;
-	}
+    function setLifeTime($lifetime)
+    {
+        $this->lifetime=$lifetime;
+    }
 
-	function setSignatureType($signatureType)
-	{
-		if ($this->_checkSignatureType($signatureType)){
-			$this->signatureType=$signatureType;
-		}else{
+    function setSignatureType($signatureType)
+    {
+        if ($this->_checkSignatureType($signatureType)){
+            $this->signatureType=$signatureType;
+        }else{
             throw new exception ("Invalid signatureType : $signatureType");
-		}
-	}
+        }
+    }
 
-	function setParam ($param,$value)
-	{
+    function setParam ($param,$value)
+    {
         if ($param!='PS_SIGNATURE')	$this->params[$param]=$value;
     }
 
@@ -36,10 +36,10 @@ class ParamSigner {
         }
     }
 
-	function getQueryString()
-	{
-		return $this->getSignature(true);
-	}
+    function getQueryString()
+    {
+        return $this->getSignature(true);
+    }
 
     function getSignedParams ()
     {
@@ -84,8 +84,8 @@ class ParamSigner {
         }
     }
 
-	private function _checkSignatureType($value)
-	{
+    private function _checkSignatureType($value)
+    {
         if ($value=='md5') return true;
         if ($value=='MD5') return true;
         if ($value=='PSMD5') return true;
@@ -93,7 +93,7 @@ class ParamSigner {
         if ($value=='SHA1') return true;
         if ($value=='PSSHA1') return true;
         return false;
-	}
+    }
 
     public static function paramAuthenticate ($paramArray, $secret = FALSE)
     {

@@ -107,6 +107,12 @@ function emerchantpay_config()
             'Default' => '',
             'Description' => 'The commission you are charged for each transaction via EMP',
         ),
+        'paymentLimit' => array(
+            'FriendlyName' => 'Maximum payment allowed',
+            'Type' => 'text',
+            'Default' => '',
+            'Description' => 'Any amount over this value will disable this method',
+        ),
         'whiteListMode' => array(
             'FriendlyName' => 'White List Mode',
             'Type' => 'yesno',
@@ -128,6 +134,51 @@ function emerchantpay_config()
             'FriendlyName' => 'Test Mode',
             'Type' => 'yesno',
             'Description' => 'Tick to enable test mode',
+        ),
+        'removeSettingFirstName' => array(
+            'FriendlyName' => 'Remove setting first name',
+            'Type' => 'yesno',
+            'Description' => 'Does not send first name data from WHMCS',
+        ),
+        'removeSettingLastName' => array(
+            'FriendlyName' => 'Remove setting last name',
+            'Type' => 'yesno',
+            'Description' => 'Does not send last name data from WHMCS',
+        ),
+        'removeSettingAddress' => array(
+            'FriendlyName' => 'Remove setting address',
+            'Type' => 'yesno',
+            'Description' => 'Does not send address data from WHMCS',
+        ),
+        'removeSettingCity' => array(
+            'FriendlyName' => 'Remove setting city',
+            'Type' => 'yesno',
+            'Description' => 'Does not send city data from WHMCS',
+        ),
+        'removeSettingState' => array(
+            'FriendlyName' => 'Remove setting state',
+            'Type' => 'yesno',
+            'Description' => 'Does not send state data from WHMCS',
+        ),
+        'removeSettingPostCode' => array(
+            'FriendlyName' => 'Remove setting post code',
+            'Type' => 'yesno',
+            'Description' => 'Does not send post code data from WHMCS',
+        ),
+        'removeSettingCountry' => array(
+            'FriendlyName' => 'Remove setting country',
+            'Type' => 'yesno',
+            'Description' => 'Does not send country code data from WHMCS',
+        ),
+        'removeSettingPhone' => array(
+            'FriendlyName' => 'Remove setting phone number',
+            'Type' => 'yesno',
+            'Description' => 'Does not send phone number data from WHMCS',
+        ),
+        'removeSettingEmail' => array(
+            'FriendlyName' => 'Remove setting email',
+            'Type' => 'yesno',
+            'Description' => 'Does not send email data from WHMCS',
         ),
     );
 }
@@ -161,9 +212,21 @@ function emerchantpay_link($params)
     $currency = $params['currency'];
     $amount = $params['amount'];
     $reference = $params['invoiceid'];
+    $limit = ($params['paymentLimit'] != '') ? $params['paymentLimit'] : 100;
+    $removeSettingFirstName = $params['removeSettingFirstName'];
+    $removeSettingLastName = $params['removeSettingLastName'];
+    $removeSettingAddress = $params['removeSettingAddress'];
+    $removeSettingCity = $params['removeSettingCity'];
+    $removeSettingState = $params['removeSettingState'];
+    $removeSettingPostCode = $params['removeSettingPostCode'];
+    $removeSettingCountry = $params['removeSettingCountry'];
+    $removeSettingPhone = $params['removeSettingPhone'];
+    $removeSettingEmail = $params['removeSettingEmail'];
 
     include_once('emerchantpay/ParamSigner.class.php');
     $ps = new Paramsigner();
+
+    //Prepare trans request string
 
     //Required fields
     $ps->setSecret($md5_key);
@@ -171,7 +234,7 @@ function emerchantpay_link($params)
     $ps->setParam('form_id',$form_id);
     $ps->setParam('order_currency',$currency);
     $ps->setParam('order_reference',$reference);
-    $ps->setParam('test_transaction', ($testMode) ? 1 : 0 ); //For the LIVE environment set to 0 or remove
+    $ps->setParam('test_transaction', ( $testMode ) ? 1 : 0 ); //For the LIVE environment set to 0 or remove
 
     //Dynamic item
     $ps->setParam('item_1_code',$reference);
@@ -183,15 +246,33 @@ function emerchantpay_link($params)
     $ps->setParam('item_1_unit_price_'.$currency,$amount);
 
     //Customer details
-    $ps->setParam('customer_first_name',$params['clientdetails']['firstname']);
-    $ps->setParam('customer_last_name',$params['clientdetails']['lastname']);
-    $ps->setParam('customer_address',$params['clientdetails']['address1']." ".$params['clientdetails']['address2']);
-    $ps->setParam('customer_city',$params['clientdetails']['city']);
-    $ps->setParam('customer_state',$params['clientdetails']['state']);
-    $ps->setParam('customer_postcode',$params['clientdetails']['postcode']);
-    $ps->setParam('customer_country',$params['clientdetails']['country']);
-    $ps->setParam('customer_phone',$params['clientdetails']['phonenumber']);
-    $ps->setParam('customer_email',$params['clientdetails']['email']);
+    if ($removeSettingFirstName != 'on') {
+        $ps->setParam('customer_first_name',$params['clientdetails']['firstname']);
+    }
+    if ($removeSettingLastName != 'on') {
+        $ps->setParam('customer_last_name',$params['clientdetails']['lastname']);
+    }
+    if ($removeSettingAddress != 'on') {
+        $ps->setParam('customer_address',$params['clientdetails']['address1']." ".$params['clientdetails']['address2']);
+    }
+    if ($removeSettingCity != 'on') {
+        $ps->setParam('customer_city',$params['clientdetails']['city']);
+    }
+    if ($removeSettingState != 'on') {
+        $ps->setParam('customer_state',$params['clientdetails']['state']);
+    }
+    if ($removeSettingPostCode != 'on') {
+        $ps->setParam('customer_postcode',$params['clientdetails']['postcode']);
+    }
+    if ($removeSettingCountry != 'on') {
+        $ps->setParam('customer_country',$params['clientdetails']['country']);
+    }
+    if ($removeSettingPhone != 'on') {
+        $ps->setParam('customer_phone',$params['clientdetails']['phonenumber']);
+    }
+    if ($removeSettingEmail != 'on') {
+        $ps->setParam('customer_email',$params['clientdetails']['email']);
+    }
 
     //generate Query String
     $requestString=$ps->getQueryString();
@@ -207,6 +288,13 @@ function emerchantpay_link($params)
     } else {
         $htmlOutput = '<form method="post" action="' . $server_url."?".$requestString . '">';
         $htmlOutput .= '<input type="submit" value="You must be white listed to use this method." disabled/>';
+        $htmlOutput .= '</form>';
+    }
+
+    //Check amount limit
+    if ($amount > $limit) {
+        $htmlOutput = '<form method="post" action="' . $server_url."?".$requestString . '">';
+        $htmlOutput .= '<input type="submit" value="Exceeded payment limit of '.$limit.'" disabled/>';
         $htmlOutput .= '</form>';
     }
 
