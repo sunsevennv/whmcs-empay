@@ -32,7 +32,7 @@ $hash = $_POST["PS_SIGNATURE"];
 /**
  * GET SUCCESS MESSAGE
  */
-$transactionStatus = ($success == 'A') ? 'Success' : 'Failure';
+$transactionStatus = ($success == 'A') ? true : false;
 
 /**
  * WORK OUT THE PAYMENT FEES
@@ -82,7 +82,7 @@ checkCbTransID($transactionId);
 logTransaction($gatewayParams['name'], $_POST, $transactionStatus);
 logTransaction($gatewayParams['name'], "InvoiceID: ".$invoiceId. " TransactionID: ".$transactionId." Payment Amount: ".$paymentAmount." Success variable: ".$success);
 
-if ($success) {
+if ($transactionStatus) {
     addInvoicePayment(
         $invoiceId,
         $transactionId,
