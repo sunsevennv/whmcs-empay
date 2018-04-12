@@ -102,7 +102,7 @@ class ParamSigner {
         $string = '';
         ksort($paramArray, SORT_STRING);
         foreach ($paramArray as $key => $value) {
-            $string .= "&" . $key . '=' . $value;
+            $string.="&".$key.'='.$value;
         }
         switch (@$paramArray['PS_SIGTYPE']) {
             case 'MD5':
