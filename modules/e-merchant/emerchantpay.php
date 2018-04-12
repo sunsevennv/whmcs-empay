@@ -273,7 +273,6 @@ function emerchantpay_link($params)
     }
     if ($removeSettingEmail != 'on') {
         $ps->setParam('customer_email',$params['clientdetails']['email']);
-
     }
 
     //generate Query String
