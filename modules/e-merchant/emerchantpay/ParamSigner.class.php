@@ -116,14 +116,25 @@ class ParamSigner {
                 $signature = sha1($secret . $string);
                 break;
             default:
-                return false;
+                return [
+                    'response' => false,
+                    'message' => 'Default case reached no type available in response...'.@$paramArray['PS_SIGTYPE']
+                ];
         }
         if ($sentSignature != $signature) {
-            return false;
+            return [
+                'response' => false,
+                'message' => 'Signatures do not match. '.$sentSignature.' != '.$signature." :: ".$secret.' + '.$string
+            ];
         }
 
         unset($paramArray['PS_SIGTYPE']);
         unset($paramArray['PS_EXPIRETIME']);
-        return $paramArray;
+        //return $paramArray; this causes an issue
+        return [
+            'response' => true,
+            'message' => ''
+        ];
     }
 }
+?>
