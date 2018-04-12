@@ -60,10 +60,13 @@ $secretKey = $gatewayParams['md5Key'];
 /**
  * AUTHENTICATE KEYS
  */
-$authenticatedParam = ParamSigner::paramAuthenticate($_POST,$secretKey);
-if(!$authenticatedParam)
+$response = ParamSigner::paramAuthenticate($_POST,$secretKey);
+
+if(!$response['response'])
 {
-    logTransaction("Error authenticating the MD5 Key: ".$_POST." Key:".$secretKey);
+    logTransaction("ERROR: ".$gatewayParams['name'], $response['message']);
+    logTransaction("ERROR DATA: ".$gatewayParams['name'], $_POST);
+
     die("Error authenticating the key");
 }
 

@@ -254,6 +254,7 @@ function emerchantpay_link($params)
     }
     if ($removeSettingAddress != 'on') {
         $ps->setParam('customer_address',$params['clientdetails']['address1']." ".$params['clientdetails']['address2']);
+
     }
     if ($removeSettingCity != 'on') {
         $ps->setParam('customer_city',$params['clientdetails']['city']);
@@ -272,6 +273,7 @@ function emerchantpay_link($params)
     }
     if ($removeSettingEmail != 'on') {
         $ps->setParam('customer_email',$params['clientdetails']['email']);
+
     }
 
     //generate Query String
